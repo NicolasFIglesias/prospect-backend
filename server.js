@@ -3,14 +3,22 @@ const cors = require('cors');
 const fetch = require('node-fetch');
 
 const app = express();
-app.use(cors());
+
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 const APIFY_TOKEN = 'apify_api_CX6IaFRTEV9fkUu0yQBFYVjwu495lg1SRLaB';
 
-app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/health', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.json({ ok: true });
+});
 
+app.options('/search', cors());
 app.post('/search', async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   const { query, limit = 12 } = req.body;
 
   try {
