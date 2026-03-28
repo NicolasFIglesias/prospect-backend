@@ -936,7 +936,7 @@ Retorne SOMENTE este JSON sem markdown:
   ]
 }`;
 
-    const aiRes = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyAnXlpgbAn-idkY1s20XSR5ixS3viK8liA", {
+    const aiRes = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyAnXlpgbAn-idkY1s20XSR5ixS3viK8liA", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1148,7 +1148,7 @@ ${lead.site ? `Site: ${lead.site}` : 'Sem site'}
 
 Escreva um script de abertura de cold call com no máximo 5 linhas, natural, direto, brasileiro. Sem formalidade excessiva. Comece com a apresentação e vá logo ao ponto de valor.`;
 
-    const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyAnXlpgbAn-idkY1s20XSR5ixS3viK8liA", {
+    const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyAnXlpgbAn-idkY1s20XSR5ixS3viK8liA", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
