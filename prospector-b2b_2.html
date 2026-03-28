@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProspectAI — Prospecção B2B</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --surface: #0e1318;
+    --surface2: #151c24;
+    --surface3: #1c2630;
+    --border: #1f2d3a;
+    --border2: #2a3f52;
+    --accent: #00d4aa;
+    --accent2: #0099ff;
+    --accent3: #ff6b35;
+    --warn: #f59e0b;
+    --text: #dde8f0;
+    --muted: #5a7a8a;
+    --muted2: #3a5265;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 56px 1fr;
+    height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,11,16,0.95);
+    backdrop-filter: blur(10px);
+    gap: 16px;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+
+  .header-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .stat-pill span { color: var(--accent); font-weight: 500; }
+
+  /* SIDEBAR */
+  aside {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted2);
+    margin-bottom: 10px;
+  }
+
+  .filter-group { display: flex; flex-direction: column; gap: 8px; }
+
+  label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  input[type="text"], select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus, select:focus, textarea:focus {
+    border-color: var(--accent2);
+  }
+
+  select option { background: var(--surface2); }
+
+  .tag-input-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    min-height: 60px;
+    cursor: text;
+  }
+
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(0,212,170,0.1);
+    border: 1px solid rgba(0,212,170,0.3);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .tag-remove {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .tag-remove:hover { color: var(--red); }
+
+  .tag-input {
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    min-width: 80px;
+    flex: 1;
+    padding: 2px 4px;
+  }
+
+  .score-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .score-val {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+    min-width: 28px;
+    text-align: right;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #080b10;
+  }
+  .btn-primary:hover { background: #00f0c0; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+  }
+  .btn-secondary:hover { background: rgba(0,153,255,0.1); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,0.3);
+    font-size: 11px;
+    padding: 6px;
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+  /* ICP PROFILE */
+  .icp-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .icp-empty {
+    text-align: center;
+    color: var(--muted2);
+    font-size: 11px;
+    padding: 16px 0;
+  }
+
+  .icp-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .icp-profile:last-child { border-bottom: none; }
+
+  .icp-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .icp-info { flex: 1; min-width: 0; }
+  .icp-name { font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .icp-meta { font-size: 10px; color: var(--muted); }
+
+  .icp-remove { cursor: pointer; color: var(--muted2); font-size: 16px; flex-shrink: 0; }
+  .icp-remove:hover { color: var(--red); }
+
+  /* MAIN CONTENT */
+  main {
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* SEARCH BAR */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .search-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 12px 12px 36px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.searching { background: var(--warn); animation: blink 1s infinite; }
+  .status-dot.idle { background: var(--muted2); }
+  .status-dot.done { background: var(--green); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .status-text { color: var(--muted); flex: 1; }
+  .status-count { color: var(--accent); font-weight: 500; }
+
+  /* RESULTS GRID */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  /* LEAD CARD */
+  .lead-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .lead-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .lead-card.saved { border-color: rgba(0,212,170,0.4); background: rgba(0,212,170,0.03); }
+  .lead-card.icp-added { border-color: rgba(0,153,255,0.4); background: rgba(0,153,255,0.03); }
+
+  .card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+
+  .company-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .card-title { flex: 1; min-width: 0; }
+  .company-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .company-segment { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .score-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .score-high { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .score-mid { background: rgba(245,158,11,0.15); color: var(--warn); border: 1px solid rgba(245,158,11,0.3); }
+  .score-low { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+  .card-info { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .info-icon { font-size: 12px; width: 14px; text-align: center; flex-shrink: 0; }
+
+  .info-link {
+    color: var(--accent2);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .info-link:hover { color: var(--accent); text-decoration: underline; }
+
+  .info-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+
+  .card-tag {
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+  }
+
+  .card-tag.positive { border-color: rgba(34,197,94,0.3); color: var(--green); background: rgba(34,197,94,0.05); }
+  .card-tag.negative { border-color: rgba(239,68,68,0.3); color: var(--red); background: rgba(239,68,68,0.05); }
+
+  .card-reason {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+    padding: 8px;
+    background: var(--surface2);
+    border-radius: 6px;
+    border-left: 2px solid var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .card-actions { display: flex; gap: 6px; }
+
+  .action-btn {
+    flex: 1;
+    padding: 7px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .action-btn:hover { border-color: var(--border2); color: var(--text); }
+  .action-btn.active { border-color: rgba(0,212,170,0.4); color: var(--accent); background: rgba(0,212,170,0.05); }
+  .action-btn.icp-btn.active { border-color: rgba(0,153,255,0.4); color: var(--accent2); background: rgba(0,153,255,0.05); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 12px;
+    color: var(--muted2);
+  }
+
+  .empty-icon { font-size: 48px; opacity: 0.4; }
+  .empty-title { font-family: 'Syne', sans-serif; font-size: 18px; color: var(--muted); }
+  .empty-sub { font-size: 12px; text-align: center; line-height: 1.6; max-width: 320px; }
+
+  /* LOADING SKELETON */
+  .skeleton-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0%,100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .skel { background: var(--surface2); border-radius: 4px; }
+  .skel-h { height: 12px; margin-bottom: 8px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text);
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* ICP ALERT */
+  .icp-alert {
+    padding: 10px 14px;
+    background: rgba(0,153,255,0.08);
+    border: 1px solid rgba(0,153,255,0.25);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--accent2);
+    line-height: 1.5;
+    display: none;
+  }
+
+  .icp-alert.visible { display: block; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      ProspectAI
+    </div>
+    <div class="header-badge">B2B Cold Call</div>
+    <div class="header-right">
+      <div class="stat-pill">Leads salvos: <span id="savedCount">0</span></div>
+      <div class="stat-pill">Perfis ICP: <span id="icpCount">0</span></div>
+    </div>
+  </header>
+
+  <aside>
+    <!-- FILTROS -->
+    <div>
+      <div class="section-label">▸ Filtros de Busca</div>
+      <div class="filter-group">
+        <label>Cidade / Região</label>
+        <input type="text" id="filterCity" placeholder="Opcional — Ex: São Paulo, SP" />
+
+        <label>Segmento / Nicho</label>
+        <select id="filterSegment">
+          <option value="">Todos os segmentos</option>
+          <optgroup label="Saúde &amp; Bem-estar">
+            <option value="clínica médica">Clínica médica</option>
+            <option value="clínica odontológica">Clínica odontológica</option>
+            <option value="clínica de estética">Clínica de estética</option>
+            <option value="psicólogo / terapeuta">Psicólogo / Terapeuta</option>
+            <option value="nutricionista">Nutricionista</option>
+            <option value="fisioterapia">Fisioterapia</option>
+            <option value="academia / personal trainer">Academia / Personal trainer</option>
+            <option value="farmácia">Farmácia</option>
+            <option value="pet shop / veterinário">Pet shop / Veterinário</option>
+          </optgroup>
+          <optgroup label="Beleza &amp; Cuidados">
+            <option value="salão de beleza">Salão de beleza</option>
+            <option value="barbearia">Barbearia</option>
+            <option value="studio de sobrancelha">Studio de sobrancelha</option>
+            <option value="manicure / nail designer">Manicure / Nail designer</option>
+            <option value="spa">Spa</option>
+          </optgroup>
+          <optgroup label="Alimentação">
+            <option value="restaurante">Restaurante</option>
+            <option value="lanchonete / hamburgueria">Lanchonete / Hamburgueria</option>
+            <option value="pizzaria">Pizzaria</option>
+            <option value="cafeteria">Cafeteria</option>
+            <option value="doceria / confeitaria">Doceria / Confeitaria</option>
+            <option value="marmitaria">Marmitaria</option>
+          </optgroup>
+          <optgroup label="Serviços">
+            <option value="escritório de advocacia">Advocacia</option>
+            <option value="escritório de contabilidade">Contabilidade</option>
+            <option value="agência de marketing">Agência de marketing</option>
+            <option value="imobiliária / corretor">Imobiliária / Corretor</option>
+            <option value="escola / curso livre">Escola / Curso livre</option>
+            <option value="auto center / mecânica">Auto center / Mecânica</option>
+            <option value="oficina / marido de aluguel">Oficina / Marido de aluguel</option>
+            <option value="gráfica / impressão">Gráfica / Impressão</option>
+            <option value="limpeza e conservação">Limpeza e conservação</option>
+          </optgroup>
+          <optgroup label="Comércio">
+            <option value="loja de roupas / moda">Loja de roupas / Moda</option>
+            <option value="loja de móveis / decoração">Móveis / Decoração</option>
+            <option value="loja de materiais de construção">Materiais de construção</option>
+            <option value="ótica">Ótica</option>
+            <option value="papelaria / livraria">Papelaria / Livraria</option>
+            <option value="loja de eletrônicos">Eletrônicos</option>
+          </optgroup>
+          <optgroup label="Educação">
+            <option value="escola de idiomas">Escola de idiomas</option>
+            <option value="escola de música / dança">Música / Dança</option>
+            <option value="escola de artes marciais">Artes marciais</option>
+            <option value="reforço escolar / tutoria">Reforço escolar / Tutoria</option>
+          </optgroup>
+        </select>
+
+        <label>Tipo de negócio</label>
+        <select id="filterType">
+          <option value="">Todos</option>
+          <option value="local">Negócio local</option>
+          <option value="autonomo">Profissional autônomo</option>
+          <option value="pequena">Pequena empresa (ME/EPP)</option>
+          <option value="media">Média empresa</option>
+        </select>
+
+        <label>Presença digital</label>
+        <select id="filterPresence">
+          <option value="">Qualquer</option>
+          <option value="instagram">Tem Instagram</option>
+          <option value="site">Tem site</option>
+          <option value="ambos">Tem Instagram + site</option>
+          <option value="fraca">Presença fraca (oportunidade)</option>
+        </select>
+
+        <label>Score médio dos leads</label>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:11px;color:var(--muted)">Atribuído pela IA após busca</span>
+          <span id="avgScore" style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--accent)">—</span>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;">
+          <div onclick="toggleKeywords()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;">
+            <span style="font-size:11px;color:var(--muted)">Palavras-chave extras</span>
+            <span id="kwArrow" style="color:var(--muted2);font-size:12px;transition:transform 0.2s">▸</span>
+          </div>
+          <div id="keywordSection" style="display:none;margin-top:8px;">
+            <div class="tag-input-area" id="keywordArea" onclick="document.getElementById('keywordInput').focus()">
+              <input class="tag-input" id="keywordInput" placeholder="Digite e pressione Enter..." />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFIS ICP -->
+    <div>
+      <div class="section-label">▸ Perfil ICP (aprendi com esses)</div>
+      <div class="icp-alert" id="icpAlert">
+        🎯 IA vai priorizar empresas parecidas com seus perfis ICP salvos.
+      </div>
+      <div class="icp-card" id="icpList">
+        <div class="icp-empty" id="icpEmpty">Nenhum perfil adicionado ainda.<br>Clique em "Gostei / Me respondeu" nos leads.</div>
+      </div>
+    </div>
+
+    <!-- AÇÕES -->
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" id="searchBtn" onclick="runSearch()">
+        ⚡ Buscar Leads
+      </button>
+      <button class="btn btn-secondary" onclick="clearResults()">
+        ↺ Limpar resultados
+      </button>
+    </div>
+  </aside>
+
+  <main id="mainContent">
+    <div class="search-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="mainSearch" placeholder="Descreva o tipo de empresa que procura... Ex: salão de beleza em BH com instagram ativo" />
+      </div>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+      <div class="status-dot idle" id="statusDot"></div>
+      <div class="status-text" id="statusText">Configure os filtros e clique em Buscar Leads</div>
+      <div class="status-count" id="statusCount"></div>
+    </div>
+
+    <div class="results-grid" id="resultsGrid">
+      <div class="empty-state">
+        <div class="empty-icon">🎯</div>
+        <div class="empty-title">Pronto para prospectar</div>
+        <div class="empty-sub">Configure os filtros na barra lateral e clique em "Buscar Leads" para encontrar empresas com alto potencial de conversão.</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// STATE
+const state = {
+  results: [],
+  saved: JSON.parse(localStorage.getItem('prospect_saved') || '[]'),
+  icpProfiles: JSON.parse(localStorage.getItem('prospect_icp') || '[]'),
+  keywords: [],
+  searching: false
+};
+
+// COLORS for avatars
+const avatarColors = [
+  ['#00d4aa','#080b10'], ['#0099ff','#080b10'], ['#ff6b35','#080b10'],
+  ['#a855f7','#080b10'], ['#f59e0b','#080b10'], ['#22c55e','#080b10']
+];
+
+// INIT
+updateStats();
+renderICP();
+
+function toggleKeywords() {
+  const sec = document.getElementById('keywordSection');
+  const arrow = document.getElementById('kwArrow');
+  const open = sec.style.display === 'none';
+  sec.style.display = open ? 'block' : 'none';
+  arrow.style.transform = open ? 'rotate(90deg)' : '';
+}
+
+// KEYWORD TAGS
+document.getElementById('keywordInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,$/, '');
+    if (val && !state.keywords.includes(val)) {
+      state.keywords.push(val);
+      renderKeywords();
+    }
+    e.target.value = '';
+  }
+});
+
+function renderKeywords() {
+  const area = document.getElementById('keywordArea');
+  const input = document.getElementById('keywordInput');
+  area.innerHTML = '';
+  state.keywords.forEach((kw, i) => {
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.innerHTML = `${kw} <span class="tag-remove" onclick="removeKeyword(${i})">×</span>`;
+    area.appendChild(tag);
+  });
+  area.appendChild(input);
+}
+
+function removeKeyword(i) {
+  state.keywords.splice(i, 1);
+  renderKeywords();
+}
+
+// SEARCH
+async function runSearch() {
+  if (state.searching) return;
+  state.searching = true;
+
+  const searchBtn = document.getElementById('searchBtn');
+  searchBtn.disabled = true;
+  searchBtn.innerHTML = '⏳ Buscando...';
+
+  setStatus('searching', 'Consultando IA para encontrar leads qualificados...');
+
+  const filters = {
+    city: document.getElementById('filterCity').value,
+    segment: document.getElementById('filterSegment').value,
+    type: document.getElementById('filterType').value,
+    presence: document.getElementById('filterPresence').value,
+    keywords: state.keywords,
+    mainSearch: document.getElementById('mainSearch').value,
+    icpProfiles: state.icpProfiles
+  };
+
+  showSkeletons();
+
+  try {
+    const queries = buildSearchQueries(filters);
+    let rawResults = [];
+    let source = '';
+
+    // STEP 1: Search via backend (Apify)
+    setStatus('searching', 'Conectando ao servidor de busca...');
+
+    const apifyQuery = [filters.segment, filters.city, filters.keywords.join(' ')].filter(Boolean).join(' ');
+
+    const backendRes = await fetch('https://prospect-backend-tqb0.onrender.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: apifyQuery, limit: 12 })
+    });
+
+    if (!backendRes.ok) {
+      const errText = await backendRes.text();
+      throw new Error('Erro no servidor de busca: ' + errText);
+    }
+
+    const backendData = await backendRes.json();
+    const apifyItems = backendData.results || [];
+
+    if (apifyItems.length === 0) {
+      throw new Error('Nenhum perfil encontrado para esses filtros. Tente outros termos.');
+    }
+
+    rawResults = apifyItems.map(item => ({
+      link: `https://instagram.com/${item.username || ''}`,
+      title: item.fullName || item.username || '',
+      snippet: [
+        item.biography,
+        item.followersCount ? item.followersCount + ' seguidores' : null,
+        item.followingCount ? 'seguindo ' + item.followingCount : null,
+        item.externalUrl || null
+      ].filter(Boolean).join(' | '),
+      apifyData: item
+    }));
+    source = 'Apify';
+
+    if (rawResults.length === 0) {
+      throw new Error('Nenhum perfil encontrado. Tente outros filtros.');
+    }
+
+    setStatus('searching', `${rawResults.length} perfis encontrados — analisando com IA...`);
+
+    // STEP 2: Send raw results to Claude to extract and score leads
+    setStatus('searching', `${rawResults.length} resultados encontrados — analisando perfis...`);
+
+    const extractPrompt = `Você recebeu perfis reais do Instagram de empresas brasileiras (fonte: ${source}).
+Extraia e estruture os dados de cada perfil encontrado.
+
+RESULTADOS DO GOOGLE:
+${rawResults.map((r, i) => `[${i+1}] URL: ${r.link}\nTítulo: ${r.title}\nDescrição: ${r.snippet}`).join('\n\n')}
+
+FILTROS DO USUÁRIO:
+- Segmento: ${filters.segment || 'qualquer'}
+- Cidade: ${filters.city || 'qualquer cidade brasileira'}
+- Tipo: ${filters.type || 'qualquer'}
+- Presença digital: ${filters.presence || 'qualquer'}
+${filters.icpProfiles.length > 0 ? `- Perfis ICP (priorize parecidos): ${filters.icpProfiles.map(p => p.name + ' (' + p.segment + ')').join(', ')}` : ''}
+
+Para cada perfil do Instagram encontrado nos resultados, extraia:
+- Handle real do Instagram (da URL: instagram.com/HANDLE)
+- Nome da empresa/profissional (do título)
+- Bio/descrição (do snippet)
+- Cidade (se mencionar na bio)
+- Se tem site linkado
+- Telefone (se aparecer)
+
+Avalie o score de conversão (50-98) considerando:
+- Perfil ativo e com bio profissional = +pontos
+- Sem site = +pontos (oportunidade)
+- Segmento de alta demanda = +pontos
+- Bio vazia ou perfil abandonado = -pontos
+
+Ignore resultados que não sejam perfis reais do Instagram (ex: artigos, notícias, páginas de busca).
+
+Retorne SOMENTE este JSON sem markdown:
+{
+  "leads": [
+    {
+      "id": "handle_sem_arroba",
+      "name": "Nome real extraído",
+      "segment": "Segmento identificado",
+      "type": "local|autonomo|pequena|media",
+      "city": "Cidade, UF ou null",
+      "score": 75,
+      "instagram": "@handle_real",
+      "instagramUrl": "https://instagram.com/handle_real",
+      "site": "https://site.com ou null",
+      "phone": "número ou null",
+      "followers": "número se visível ou null",
+      "lastPost": "null",
+      "bio": "trecho da bio",
+      "tags": ["instagram real", "sem site"],
+      "conversionReason": "Motivo específico baseado no perfil real encontrado",
+      "signals": {
+        "positive": ["bio profissional", "segmento ativo"],
+        "negative": []
+      }
+    }
+  ]
+}`;
+
+    const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 4000,
+        system: "Você é um especialista em prospecção B2B. Extraia dados estruturados de perfis reais do Instagram a partir de resultados do Google. Responda APENAS com JSON válido, sem markdown.",
+        messages: [{ role: "user", content: extractPrompt }]
+      })
+    });
+
+    const aiData = await aiRes.json();
+    const text = aiData.content[0].text.trim();
+    const clean = text.replace(/```json|```/g, '').trim();
+    const jsonMatch = clean.match(/\{[\s\S]*"leads"[\s\S]*\}/);
+    let parsed = { leads: [] };
+    if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
+
+    if (!parsed.leads || parsed.leads.length === 0) {
+      throw new Error('Não foi possível extrair perfis dos resultados. Tente outros filtros.');
+    }
+
+    state.results = parsed.leads;
+    renderResults();
+    const avg = state.results.length ? Math.round(state.results.reduce((s,l) => s + (l.score||0), 0) / state.results.length) : 0;
+    document.getElementById('avgScore').textContent = avg || '—';
+    setStatus('done', `Busca concluída —`, `${state.results.length} perfis reais encontrados`);
+    showToast(`✅ ${state.results.length} leads reais do Instagram carregados`);
+
+  } catch (err) {
+    console.error(err);
+    setStatus('idle', '❌ ' + (err.message || 'Erro na busca. Tente novamente.'));
+    showToast(err.message || 'Erro ao buscar leads.');
+    document.getElementById('resultsGrid').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-title">Erro na busca</div>
+        <div class="empty-sub">${err.message || 'Não foi possível conectar. Verifique sua conexão e tente novamente.'}</div>
+      </div>`;
+  } finally {
+    state.searching = false;
+    searchBtn.disabled = false;
+    searchBtn.innerHTML = '⚡ Buscar Leads';
+  }
+}
+
+function buildSearchQueries(f) {
+  const city = f.city || '';
+  const segment = f.segment || 'pequeno negócio';
+  const kw = f.keywords.length > 0 ? f.keywords.join(' ') : '';
+
+  // Build 2 complementary queries to maximize results (100 searches/day limit)
+  const q1 = [segment, city, kw].filter(Boolean).join(' ');
+  const q2 = [segment, city, 'empresa'].filter(Boolean).join(' ');
+
+  return [q1, q2];
+}
+
+function showSkeletons() {
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = Array(6).fill(0).map(() => `
+    <div class="skeleton-card">
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <div class="skel" style="width:40px;height:40px;border-radius:10px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="skel skel-h" style="width:70%"></div>
+          <div class="skel skel-h" style="width:45%"></div>
+        </div>
+      </div>
+      <div class="skel skel-h" style="width:100%"></div>
+      <div class="skel skel-h" style="width:80%"></div>
+      <div class="skel skel-h" style="width:60%"></div>
+      <div style="display:flex;gap:6px;margin-top:12px">
+        <div class="skel" style="height:30px;flex:1;border-radius:6px"></div>
+        <div class="skel" style="height:30px;flex:1;border-radius:6px"></div>
+        <div class="skel" style="height:30px;flex:1;border-radius:6px"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderResults() {
+  const grid = document.getElementById('resultsGrid');
+  const leads = state.results;
+
+  if (leads.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">Nenhum lead encontrado</div>
+        <div class="empty-sub">Tente ajustar os filtros ou reduzir o score mínimo de conversão.</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = leads.map((lead, i) => renderCard(lead, i)).join('');
+}
+
+function renderCard(lead, idx) {
+  const colorIdx = idx % avatarColors.length;
+  const [bg, fg] = avatarColors[colorIdx];
+  const initials = lead.name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+
+  const scoreClass = lead.score >= 80 ? 'score-high' : lead.score >= 60 ? 'score-mid' : 'score-low';
+  const isSaved = state.saved.find(s => s.id === lead.id);
+  const isICP = state.icpProfiles.find(p => p.id === lead.id);
+
+  const igUrl = lead.instagramUrl || (lead.instagram ? `https://instagram.com/${lead.instagram.replace('@','')}` : null);
+  const instagramRow = lead.instagram
+    ? `<div class="info-row"><span class="info-icon">📸</span><a class="info-link" href="${igUrl}" target="_blank">${lead.instagram}</a>${lead.followers ? ` <span style="color:var(--muted2);margin-left:4px">${lead.followers} seguidores</span>` : ''}</div>${lead.bio ? `<div class="info-row" style="padding-left:21px"><span class="info-text" style="color:var(--muted);font-size:10px;line-height:1.4">${lead.bio.slice(0,80)}${lead.bio.length>80?'…':''}</span></div>` : ''}`
+    : `<div class="info-row"><span class="info-icon">📸</span><span style="color:var(--muted2)">Sem Instagram detectado</span></div>`;
+
+  const siteRow = lead.site
+    ? `<div class="info-row"><span class="info-icon">🌐</span><a class="info-link" href="${lead.site}" target="_blank">${lead.site.replace('https://','').replace('http://','')}</a></div>`
+    : `<div class="info-row"><span class="info-icon">🌐</span><span style="color:var(--muted2)">Sem site — oportunidade!</span></div>`;
+
+  const phoneRow = lead.phone
+    ? `<div class="info-row"><span class="info-icon">📞</span><span class="info-text">${lead.phone}</span></div>`
+    : '';
+
+  const positiveTags = (lead.signals?.positive || []).map(s => `<span class="card-tag positive">✓ ${s}</span>`).join('');
+  const negativeTags = (lead.signals?.negative || []).map(s => `<span class="card-tag negative">✗ ${s}</span>`).join('');
+  const extraTags = (lead.tags || []).map(t => `<span class="card-tag">${t}</span>`).join('');
+
+  return `
+    <div class="lead-card ${isSaved ? 'saved' : ''} ${isICP ? 'icp-added' : ''}" id="card_${lead.id}" style="animation-delay:${idx * 0.05}s">
+      <div class="card-header">
+        <div class="company-avatar" style="background:${bg};color:${fg}">${initials}</div>
+        <div class="card-title">
+          <div class="company-name" title="${lead.name}">${lead.name}</div>
+          <div class="company-segment">${lead.segment} · ${lead.city}</div>
+        </div>
+        <div class="score-badge ${scoreClass}">${lead.score}</div>
+      </div>
+
+      <div class="card-info">
+        ${instagramRow}
+        ${siteRow}
+        ${phoneRow}
+        ${lead.lastPost ? `<div class="info-row"><span class="info-icon">🕐</span><span class="info-text" style="color:var(--muted)">Último post: ${lead.lastPost}</span></div>` : ''}
+      </div>
+
+      <div class="card-tags">${positiveTags}${negativeTags}${extraTags}</div>
+
+      <div class="card-reason">💡 ${lead.conversionReason}</div>
+
+      <div class="card-actions">
+        <button class="action-btn ${isSaved ? 'active' : ''}" onclick="toggleSave('${lead.id}')">
+          ${isSaved ? '★ Salvo' : '☆ Salvar'}
+        </button>
+        <button class="action-btn icp-btn ${isICP ? 'active' : ''}" onclick="toggleICP('${lead.id}')">
+          ${isICP ? '✓ No ICP' : '+ ICP'}
+        </button>
+        <button class="action-btn" onclick="copyScript('${lead.id}')">
+          📋 Script
+        </button>
+      </div>
+    </div>`;
+}
+
+function toggleSave(id) {
+  const lead = state.results.find(l => l.id === id);
+  if (!lead) return;
+  const idx = state.saved.findIndex(s => s.id === id);
+  if (idx >= 0) {
+    state.saved.splice(idx, 1);
+    showToast('Lead removido dos salvos');
+  } else {
+    state.saved.push(lead);
+    showToast('✅ Lead salvo!');
+  }
+  localStorage.setItem('prospect_saved', JSON.stringify(state.saved));
+  updateStats();
+  refreshCard(id);
+}
+
+function toggleICP(id) {
+  const lead = state.results.find(l => l.id === id);
+  if (!lead) return;
+  const idx = state.icpProfiles.findIndex(p => p.id === id);
+  if (idx >= 0) {
+    state.icpProfiles.splice(idx, 1);
+    showToast('Removido do perfil ICP');
+  } else {
+    state.icpProfiles.push({ id: lead.id, name: lead.name, segment: lead.segment, city: lead.city, score: lead.score });
+    showToast('🎯 Adicionado ao perfil ICP! Próximas buscas serão ajustadas.');
+  }
+  localStorage.setItem('prospect_icp', JSON.stringify(state.icpProfiles));
+  updateStats();
+  renderICP();
+  refreshCard(id);
+}
+
+async function copyScript(id) {
+  const lead = state.results.find(l => l.id === id);
+  if (!lead) return;
+
+  showToast('⏳ Gerando script personalizado...');
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 500,
+        messages: [{
+          role: "user",
+          content: `Crie um script curto e natural de cold call para prospectar esta empresa:
+Nome: ${lead.name}
+Segmento: ${lead.segment}
+Cidade: ${lead.city}
+Motivo de conversão: ${lead.conversionReason}
+${lead.instagram ? `Instagram: ${lead.instagram} (${lead.followers || ''} seguidores, último post: ${lead.lastPost})` : 'Sem instagram'}
+${lead.site ? `Site: ${lead.site}` : 'Sem site'}
+
+Escreva um script de abertura de cold call com no máximo 5 linhas, natural, direto, brasileiro. Sem formalidade excessiva. Comece com a apresentação e vá logo ao ponto de valor.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const script = data.content[0].text;
+    await navigator.clipboard.writeText(script);
+    showToast('📋 Script copiado para a área de transferência!');
+  } catch {
+    showToast('Erro ao gerar script.');
+  }
+}
+
+function refreshCard(id) {
+  const lead = state.results.find(l => l.id === id);
+  if (!lead) return;
+  const cardEl = document.getElementById(`card_${id}`);
+  if (!cardEl) return;
+  const idx = state.results.indexOf(lead);
+  cardEl.outerHTML = renderCard(lead, idx);
+}
+
+function renderICP() {
+  const list = document.getElementById('icpList');
+  const empty = document.getElementById('icpEmpty');
+  const alert = document.getElementById('icpAlert');
+
+  if (state.icpProfiles.length === 0) {
+    list.innerHTML = '<div class="icp-empty" id="icpEmpty">Nenhum perfil adicionado ainda.<br>Clique em "+ ICP" nos leads.</div>';
+    alert.classList.remove('visible');
+    return;
+  }
+
+  alert.classList.add('visible');
+  list.innerHTML = state.icpProfiles.map(p => `
+    <div class="icp-profile">
+      <div class="icp-avatar">${p.name.slice(0,2).toUpperCase()}</div>
+      <div class="icp-info">
+        <div class="icp-name">${p.name}</div>
+        <div class="icp-meta">${p.segment} · Score ${p.score}</div>
+      </div>
+      <div class="icp-remove" onclick="removeICP('${p.id}')">×</div>
+    </div>
+  `).join('');
+}
+
+function removeICP(id) {
+  state.icpProfiles = state.icpProfiles.filter(p => p.id !== id);
+  localStorage.setItem('prospect_icp', JSON.stringify(state.icpProfiles));
+  updateStats();
+  renderICP();
+  const cardEl = document.getElementById(`card_${id}`);
+  if (cardEl) {
+    const lead = state.results.find(l => l.id === id);
+    if (lead) cardEl.outerHTML = renderCard(lead, state.results.indexOf(lead));
+  }
+  showToast('Removido do perfil ICP');
+}
+
+function clearResults() {
+  state.results = [];
+  document.getElementById('avgScore').textContent = '—';
+  document.getElementById('resultsGrid').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">Pronto para prospectar</div>
+      <div class="empty-sub">Configure os filtros e clique em "Buscar Leads".</div>
+    </div>`;
+  setStatus('idle', 'Configure os filtros e clique em Buscar Leads');
+}
+
+function setStatus(type, text, count = '') {
+  const dot = document.getElementById('statusDot');
+  dot.className = `status-dot ${type}`;
+  document.getElementById('statusText').textContent = text;
+  document.getElementById('statusCount').textContent = count;
+}
+
+function updateStats() {
+  document.getElementById('savedCount').textContent = state.saved.length;
+  document.getElementById('icpCount').textContent = state.icpProfiles.length;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Enter para buscar
+document.getElementById('mainSearch').addEventListener('keydown', e => {
+  if (e.key === 'Enter') runSearch();
+});
+</script>
+</body>
+</html>
